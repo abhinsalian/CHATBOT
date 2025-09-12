@@ -2,7 +2,8 @@ import os
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader,TextLoader,CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+# from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 import streamlit as st
 import asyncio
@@ -15,7 +16,7 @@ except RuntimeError:
 load_dotenv()
 apikey=os.getenv("GOOGLE_API_KEY")
 
-st.title("📁 Upload a File")
+st.title("📁 Upload File")
 uploaded_file = st.file_uploader("Choose a file")
 
 def ingest_data(path):
@@ -40,7 +41,10 @@ def ingest_data(path):
         )
         chunks = splitter.split_documents(docs)
 
-        embedding=GoogleGenerativeAIEmbeddings(model='models/embedding-001',api_key=apikey)
+        # embedding=GoogleGenerativeAIEmbeddings(model='models/embedding-001',api_key=apikey)
+        embedding = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/paraphrase-MiniLM-L12-v2"
+        )
         vector_store=Chroma(
             embedding_function=embedding,
             collection_name="sample",           
